@@ -54,8 +54,15 @@ export function addNewHistory(newHistory) {
      * - store의 detailList 새로 갱신
      * - store.currentFunds 새로 갱신
      */
-    store.detailList = null;
-    store.currentFunds = null;
+    if (store.detailList[todayId]) {
+      // 배열에 항목을 푸쉬
+      store.detailList[todayId] = store.detailList[todayId].push(newHistory);
+    } else {
+      store.detailList[todayId] = [newHistory];
+    }
+
+    // 현재 자산 - amount
+    store.currentFunds -= newHistory.amount;
 
     updateStorage();
     return true;
@@ -72,7 +79,12 @@ export function removeHistory(dateId, itemId) {
      * - store의 detailList 새로 갱신
      * - store.currentFunds 새로 갱신
      */
-    store.detailList[dateId] = null;
+    store.detailList[dateId] = store.detailList[dateId].filter(({id, amount}) => {
+      if (id === Number(itemId)) {
+        store.currentFunds += amount;
+      }
+      return id !== Number(itemId);
+    })
 
     updateStorage();
     return true;
